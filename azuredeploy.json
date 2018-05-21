@@ -63,16 +63,28 @@
         "description": "application gateway instance count"
       }
     },
+    "frontendCertData": {
+      "type": "string",
+      "metadata": {
+        "description": "Base-64 encoded form of the .pfx file. This is the cert terminating on the Application Gateway."
+      }
+    },
+    "frontendCertPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Password for .pfx certificate"
+      }
+    },
     "frontendPort": {
       "type": "int",
-      "defaultValue": 80,
+      "defaultValue": 443,
       "metadata": {
         "description": "application gateway front end port"
       }
     },
     "backendPort": {
       "type": "int",
-      "defaultValue": 80,
+      "defaultValue": 8080,
       "metadata": {
         "description": "application gateway back end port"
       }
@@ -149,6 +161,15 @@
           "tier": "Standard",
           "capacity": "[parameters('applicationGatewayInstanceCount')]"
         },
+        "sslCertificates": [
+          {
+            "name": "appGatewayFrontEndSslCert",
+            "properties": {
+              "data": "[parameters('frontendCertData')]",
+              "password": "[parameters('frontendCertPassword')]"
+            }
+          }
+        ],
         "gatewayIPConfigurations": [
           {
             "name": "appGatewayIpConfig",
@@ -197,7 +218,7 @@
         ],
         "httpListeners": [
           {
-            "name": "appGatewayHttpListener",
+            "name": "appGatewayHttpsListener",
             "properties": {
               "FrontendIpConfiguration": {
                 "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendIPConfigurations/appGatewayFrontendIP')]"
@@ -205,18 +226,20 @@
               "FrontendPort": {
                 "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/frontendPorts/appGatewayFrontendPort')]"
               },
-              "Protocol": "Http",
-              "SslCertificate": null
+              "Protocol": "Https",
+              "SslCertificate": {
+                "Id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/sslCertificates/appGatewayFrontEndSslCert')]"
+              }
             }
           }
         ],
         "requestRoutingRules": [
           {
-            "Name": "rule1",
+            "Name": "HTTPSRule",
             "properties": {
               "RuleType": "Basic",
               "httpListener": {
-                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/httpListeners/appGatewayHttpListener')]"
+                "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/httpListeners/appGatewayHttpsListener')]"
               },
               "backendAddressPool": {
                 "id": "[concat(resourceId('Microsoft.Network/applicationGateways', parameters('applicationGatewayName')), '/backendAddressPools/appGatewayBackendPool')]"
