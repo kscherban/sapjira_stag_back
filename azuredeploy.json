@@ -32,7 +32,7 @@
     },
     "applicationGatewayName": {
       "type": "string",
-      "defaultValue": "applicationGateway1",
+      "defaultValue": "jiraappgateway",
       "metadata": {
         "description": "application gateway name"
       }
