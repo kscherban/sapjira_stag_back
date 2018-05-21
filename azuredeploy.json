@@ -52,7 +52,6 @@
     "applicationGatewayInstanceCount": {
       "type": "int",
       "allowedValues": [
-        1,
         2,
         3,
         4,
